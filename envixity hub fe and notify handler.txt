@@ -1,0 +1,150 @@
+local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
+local Window = OrionLib:MakeWindow({Name = "Envixity Hub", HidePremium = true, SaveConfig = false, ConfigFolder = "OrionTest"})
+local gameName = game.Name -- Get the name of the current game
+
+OrionLib:MakeNotification({
+    Name = "Game script loaded",
+    Content = "Loaded script for game: " .. gameName,
+    Image = "",
+    Time = 5
+})
+
+local Tab = Window:MakeTab({
+	Name = "FE & Universals",
+	Icon = "",
+	PremiumOnly = false
+})
+Tab:AddButton({
+	Name = "FPS Booster",
+	Callback = function()
+      		loadstring(game:HttpGet("https://paste-drop.com/raw/Mxwj2WaCzN"))()
+  	end    
+})
+Tab:AddButton({
+	Name = "Mobile ShiftLock",
+	Callback = function()
+      		loadstring(game:HttpGet("https://raw.githubusercontent.com/ronniefx/RonnieShiftLock/1bc0cbc3d5d60854f0c63c2a53e0ae253fc7a7b0/shiftlockmadebyronnie"))()
+  	end    
+})
+Tab:AddButton({
+	Name = "Chat Bypass",
+	Callback = function()
+      		loadstring(game:HttpGet("https://raw.githubusercontent.com/Xulaari/Vastral/main/Vastral.lua%22"))()
+  	end    
+})
+Tab:AddButton({
+	Name = "Infinite Yield",
+	Callback = function()
+      		loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"))()
+  	end    
+})
+Tab:AddButton({
+	Name = "Universal RTX",
+	Callback = function()
+      		loadstring(game:HttpGet("https://paste-drop.com/raw/d3BKlxcZEd"))()
+  	end    
+})
+Tab:AddButton({
+	Name = "Invisible",
+	Callback = function()
+      		loadstring(game:HttpGet("https://paste-drop.com/raw/HqG7Q2Aifc"))()
+  	end    
+})
+Tab:AddButton({
+	Name = "No Clip",
+	Callback = function()
+      		loadstring(game:HttpGet("https://paste-drop.com/raw/hfIo9IvyV5"))()
+  	end    
+})
+Tab:AddButton({
+	Name = "Hitbox Expander",
+	Callback = function()
+      		loadstring(game:HttpGet("https://raw.githubusercontent.com/Vcsk/RobloxScripts/main/HitboxExpander.lua"))()
+  	end    
+})
+Tab:AddButton({
+	Name = "Q Tool",
+	Callback = function()
+      		loadstring(game:HttpGet("https://pastebin.com/raw/zyJR1qv4"))()
+  	end    
+})
+Tab:AddButton({
+	Name = "ESP",
+	Callback = function()
+      		loadstring(game:HttpGet("https://paste.gg/p/anonymous/7259b0557ebf44ccabf2f7b58dc79899/files/0475cb5d744642a2b572e3a8af205588/raw"))()
+  	end    
+})
+Tab:AddButton({
+	Name = "Speed",
+	Callback = function()
+      		loadstring(game:HttpGet("https://pastebin.com/raw/XiqsUXHj"))()
+  	end    
+})
+Tab:AddButton({
+	Name = "Fly",
+	Callback = function()
+      		loadstring(game:HttpGet("https://pastebin.com/raw/gJfKgLra%22"))()
+  	end    
+})
+Tab:AddButton({
+	Name = "B Tools",
+	Callback = function()
+      		loadstring(game:HttpGet("https://cdn.wearedevs.net/scripts/BTools.txt%22"))()
+  	end    
+})
+Tab:AddButton({
+	Name = "Free Emotes",
+	Callback = function()
+      		loadstring(game:HttpGet("https://pastebin.com/raw/eCpipCTH"))()
+  	end    
+})
+Tab:AddButton({
+	Name = "Chat Spammer",
+	Callback = function()
+      		loadstring(game:HttpGet("https://raw.githubusercontent.com/scripthubekitten/chatspammer/main/chatspammer"))()
+  	end    
+})
+Tab:AddButton({
+	Name = "Fake Limiteds",
+	Callback = function()
+      		loadstring(game:HttpGet("https://raw.githubusercontent.com/scripthubekitten/fakelimitedsv2/main/fakelimitedsv2"))()
+  	end    
+})
+Tab:AddButton({
+	Name = "Rizz",
+	Callback = function()
+      		loadstring(game:HttpGet("https://scripts.luawl.com/hosted/4694/19821/VadriftsRizz.lua"))()
+  	end    
+})
+Tab:AddButton({
+	Name = "Fly GUI",
+	Callback = function()
+      		loadstring(game:HttpGet("https://raw.githubusercontent.com/XNEOFF/FlyGuiV3/main/FlyGuiV3.txt%22"))()
+  	end    
+})
+Tab:AddButton({
+	Name = "Nameless Admin",
+	Callback = function()
+      		loadstring(game:HttpGet("https://raw.githubusercontent.com/FilteringEnabled/NamelessAdmin/main/Source"))()
+  	end    
+})
+Tab:AddButton({
+	Name = "Headless Korblox",
+	Callback = function()
+      		loadstring(game:HttpGet("https://pastebin.com/raw/H5yx10Jq"))()
+  	end    
+})
+Tab:AddButton({
+	Name = "Better Roblox",
+	Callback = function()
+      		loadstring(game:HttpGet("https://raw.githubusercontent.com/scripthubekitten/betterrobloxui/main/betterroblox"))()
+  	end    
+})
+
+local Tab1 = Window:MakeTab({
+	Name = "Credits",
+	Icon = "",
+	PremiumOnly = false
+})
+
+Tab1:AddLabel("Credits to Envixity and XE. For help message discord enoEure or Envixity.")
