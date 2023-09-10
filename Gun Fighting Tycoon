@@ -1,0 +1,81 @@
+local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
+local Window = OrionLib:MakeWindow({Name = "Gun Fighting Tycoon", HidePremium = true, SaveConfig = false, ConfigFolder = "OrionTest"})
+getgenv().run = false
+local localPlayer = game:GetService("Players").LocalPlayer
+
+OrionLib:MakeNotification({
+	Name = "Gun Fighting Tycoon",
+	Content = "Script by EnoEure",
+	Image = "",
+	Time = 5
+})
+
+local KillTab = Window:MakeTab({
+	Name = "Killing",
+	Icon = "",
+	PremiumOnly = false
+})
+
+KillTab:AddButton({
+	Name = "Turn on Aimlock",
+	Callback = function()
+      		loadstring(game:HttpGet("https://raw.githubusercontent.com/xehub101/xehub/main/lockon"))()
+  	end    
+})
+local CreditsTab = Window:MakeTab({
+	Name = "Credits",
+	Icon = "",
+	PremiumOnly = false
+})
+
+CreditsTab:AddLabel("Credits Discord: EnoEure")
+local function applyToPlayer(player)
+    local args = {
+        [1] = game:GetService("Players").LocalPlayer.Character.Pistol,
+        [2] = game:GetService("Players").LocalPlayer,
+        [5] = 17,
+        [6] = { [1] = 0, [2] = 0, [3] = false }
+    }
+
+    local success, humanoid = pcall(function()
+        return player.Character.Humanoid
+    end)
+
+    local success, humanoidRootPart = pcall(function()
+        return player.Character.HumanoidRootPart
+    end)
+
+    if success then
+        args[3] = humanoid
+        args[4] = humanoidRootPart
+
+        pcall(function()
+            game:GetService("ReplicatedStorage").InflictTarget:FireServer(unpack(args))
+        end)
+    else
+        warn("Error getting humanoid or humanoidRootPart for player: " .. player.Name)
+    end
+end
+
+
+function KillAll()
+while run == true do
+local players = game:GetService("Players"):GetPlayers()
+for _, player in ipairs(players) do
+    if player ~= localPlayer then
+        applyToPlayer(player)
+    end
+end
+wait()
+end
+end
+
+KillTab:AddToggle({
+	Name = "Kill All",
+	Default = false,
+	Callback = function(Value)
+		run = Value
+                KillAll()
+	end    
+})
+KillTab:AddLabel("Put pistol in hand before turning on Kill All and leave in hand.")
