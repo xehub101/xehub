@@ -1,0 +1,55 @@
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local Camera = game.Workspace.CurrentCamera
+
+local player = Players.LocalPlayer
+local mouse = player:GetMouse()
+
+local isLockingOn = false
+local targetPlayer = nil
+
+UserInputService.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton2 then
+        if not isLockingOn then
+            -- Find the player closest to the mouse
+            local closestPlayer, closestDistance = nil, math.huge
+
+            for _, otherPlayer in ipairs(Players:GetPlayers()) do
+                if otherPlayer ~= player then
+                    local character = otherPlayer.Character
+                    if character then
+                        local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+                        if humanoidRootPart then
+                            local screenPos = Camera:WorldToViewportPoint(humanoidRootPart.Position)
+                            local distance = (Vector2.new(mouse.X, mouse.Y) - Vector2.new(screenPos.X, screenPos.Y)).Magnitude
+                            if distance < closestDistance then
+                                closestPlayer = otherPlayer
+                                closestDistance = distance
+                            end
+                        end
+                    end
+                end
+            end
+
+            if closestPlayer then
+                isLockingOn = true
+                targetPlayer = closestPlayer
+            end
+        else
+            isLockingOn = false
+            targetPlayer = nil
+        end
+    end
+end)
+
+game:GetService("RunService").Stepped:Connect(function(_, dt)
+    if isLockingOn and targetPlayer then
+        local targetCharacter = targetPlayer.Character
+        if targetCharacter then
+            local humanoidRootPart = targetCharacter:FindFirstChild("HumanoidRootPart")
+            if humanoidRootPart then
+                Camera.CFrame = CFrame.new(Camera.CFrame.Position, humanoidRootPart.Position)
+            end
+        end
+    end
+end)
