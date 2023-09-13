@@ -1,0 +1,454 @@
+local Players = game:GetService("Players")
+local players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local Camera = game.Workspace.CurrentCamera
+local local_player = players.LocalPlayer
+local run_service = game:GetService("RunService")
+local starter_gui = game:GetService("StarterGui")
+local player = Players.LocalPlayer
+local mouse = player:GetMouse()
+local hitvalue = 8
+local targetSize = Vector3.new(8, 8, 8) 
+local isLockingOn = false
+local targetPlayer = nil
+
+local Holder = Instance.new("Folder", game.CoreGui)
+Holder.Name = "ESP"
+
+local function toggleLockOn()
+    isLockingOn = not isLockingOn
+    if not isLockingOn then
+        targetPlayer = nil
+    end
+end
+
+local function handleInput(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton2 then
+        toggleLockOn()
+    end
+
+    -- Detect tap on mobile
+    if input.UserInputType == Enum.UserInputType.Touch and input.UserInputState == Enum.UserInputState.Begin then
+        toggleLockOn()
+    end
+end
+
+UserInputService.InputBegan:Connect(handleInput)
+
+game:GetService("RunService").Stepped:Connect(function(_, dt)
+    if isLockingOn then
+        local playerPosition = Camera.CFrame.Position
+        local playerTeam = player.Team
+        local cameraLook = Camera.CFrame.LookVector
+
+        local closestPlayer, closestAngle = nil, math.huge
+
+        for _, otherPlayer in ipairs(Players:GetPlayers()) do
+            if otherPlayer ~= player and (not otherPlayer.Team or otherPlayer.Team ~= playerTeam) then
+                local character = otherPlayer.Character
+                if character then
+                    local head = character:FindFirstChild("Head")
+                    if head then
+                        local headPosition = head.Position
+                        local toHead = (headPosition - playerPosition).unit
+
+                        local angle = math.acos(cameraLook:Dot(toHead))
+
+                        if angle < math.rad(30) and angle < closestAngle then
+                            closestPlayer = otherPlayer
+                            closestAngle = angle
+                        end
+                    end
+                end
+            end
+        end
+
+        if closestPlayer then
+            targetPlayer = closestPlayer
+        else
+            targetPlayer = nil
+        end
+    end
+
+    if isLockingOn and targetPlayer then
+        local targetCharacter = targetPlayer.Character
+        if targetCharacter then
+            local head = targetCharacter:FindFirstChild("Head")
+            if head then
+                Camera.CFrame = CFrame.new(Camera.CFrame.Position, head.Position)
+            end
+        end
+    end
+
+    for _, v in pairs(Holder:GetChildren()) do
+        if v:IsA("Folder") and v.Name ~= player.Name then -- Skip LocalPlayer
+            local playerName = v.Name
+            local vPlayer = Players:FindFirstChild(playerName)
+
+            if vPlayer and (not vPlayer.Team or vPlayer.Team ~= player.Team) then
+                local character = vPlayer.Character
+                if character then
+                    local head = character:FindFirstChild("Head")
+                    if head then
+                        local screenPos = Camera:WorldToViewportPoint(head.Position)
+                        if screenPos.Z > 0 then
+                            local distance = (head.Position - player.Position).magnitude
+                            local scale = 1 / distance
+                            v.Adornee = head
+                            v.Size = Vector3.new(4 * scale, 7 * scale, 4 * scale)
+                            v.CFrame = CFrame.new(head.Position)
+                            v.Visible = true
+
+                            local nameTag = v:FindFirstChild(playerName .. "NameTag")
+                            if nameTag then
+                                nameTag.Enabled = true
+                                nameTag.StudsOffset = Vector3.new(0, 1.8 * scale, 0)
+                                nameTag.Size = UDim2.new(0, 200 * scale, 0, 50 * scale)
+                                nameTag.Adornee = head
+
+                                local tag = nameTag.Tag
+                                tag.Position = UDim2.new(0, -50 * scale, 0, 0)
+                                tag.Size = UDim2.new(0, 300 * scale, 0, 20 * scale)
+                                tag.TextSize = 20 * scale
+                            end
+                        else
+                            v.Visible = false
+                        end
+                    end
+                end
+            end
+        end
+    end
+end)
+
+local LoadCharacter = function(v)
+    repeat wait() until v.Character ~= nil
+    v.Character:WaitForChild("Humanoid")
+    local vHolder = Holder:FindFirstChild(v.Name)
+    vHolder:ClearAllChildren()
+    local b = Instance.new("BoxHandleAdornment")
+    b.Name = v.Name .. "Box"
+    b.Adornee = v.Character
+    b.Parent = vHolder
+    local t = Instance.new("BillboardGui")
+    t.Name = v.Name .. "NameTag"
+    t.Enabled = true
+    t.Parent = vHolder
+    t.Adornee = v.Character:WaitForChild("Head", 5)
+    if not t.Adornee then
+        return UnloadCharacter(v)
+    end
+    t.Size = UDim2.new(0, 200, 0, 50)
+    t.StudsOffset = Vector3.new(0, 1.8, 0)
+    local tag = Instance.new("TextLabel", t)
+    tag.Name = "Tag"
+    tag.BackgroundTransparency = 1
+    tag.Position = UDim2.new(0, -50, 0, 0)
+    tag.Size = UDim2.new(0, 300, 0, 20)
+    tag.TextSize = 20
+    tag.Text = v.Name
+    tag.Font = Enum.Font.SourceSansBold
+    tag.TextColor3 = Color3.new(100 / 255, 100 / 255, 100 / 255)
+    tag.TextStrokeColor3 = Color3.new(0 / 255, 0 / 255, 0 / 255)
+    tag.TextStrokeTransparency = 0.4
+    local bColor = Color3.new(v.TeamColor.r, v.TeamColor.g, v.TeamColor.b)
+    b.Size = Vector3.new(4, 7, 4)
+    b.Color3 = bColor
+    t.Tag.TextColor3 = bColor
+
+    local Update
+    local UpdateNameTag = function()
+        if not pcall(function()
+            v.Character.Humanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None
+            local maxh = math.floor(v.Character.Humanoid.MaxHealth)
+            local h = math.floor(v.Character.Humanoid.Health)
+            t.Tag.Text = v.Name .. "\n" .. ((maxh ~= 0 and tostring(math.floor((h / maxh) * 100))) or "0") .. "%  " .. tostring(h) .. "/" .. tostring(maxh)
+        end) then
+            Update:Disconnect()
+        end
+    end
+
+    UpdateNameTag()
+    Update = v.Character.Humanoid.Changed:Connect(UpdateNameTag)
+end
+
+local UnloadCharacter = function(v)
+    local vHolder = Holder:FindFirstChild(v.Name)
+    if vHolder and (vHolder:FindFirstChild(v.Name .. "Box") ~= nil or vHolder:FindFirstChild(v.Name .. "NameTag") ~= nil) then
+        vHolder:ClearAllChildren()
+    end
+end
+
+local hitboxExpanderEnabled = false
+
+local function enableHitboxExpander()
+    hitboxExpanderEnabled = true
+end
+
+local function disableHitboxExpander()
+    hitboxExpanderEnabled = false
+end
+
+local function toggleHitboxExpander()
+    hitboxExpanderEnabled = not hitboxExpanderEnabled
+end
+
+local function extend_hitboxes()
+    if hitboxExpanderEnabled then
+        local character = player.Character
+
+        if not character then
+            return
+        end
+
+        local humanoid_root_part = character:FindFirstChild("HumanoidRootPart")
+
+        if not humanoid_root_part then
+            return
+        end
+
+        for _, otherPlayer in pairs(players:GetPlayers()) do
+            if otherPlayer == player then
+                continue
+            end
+
+            local other_character = otherPlayer.Character
+            
+            if not other_character then
+                continue
+            end
+
+            local other_humanoid_root_part = other_character:FindFirstChild("HumanoidRootPart")
+
+            if not other_humanoid_root_part then
+                continue
+            end
+
+            local are_touching = false
+
+            for _, part in pairs(workspace:GetPartsInPart(other_humanoid_root_part)) do
+                if part:IsDescendantOf(character) then
+                    are_touching = true
+                    break
+                end
+            end
+
+            if are_touching then
+                continue
+            end
+
+            if not otherPlayer.Team or otherPlayer.Team ~= player.Team then
+                other_humanoid_root_part.Size = targetSize
+                other_humanoid_root_part.Transparency = 0.3
+                other_humanoid_root_part.BrickColor = otherPlayer.TeamColor
+                other_humanoid_root_part.Shape = Enum.PartType.Ball
+                other_humanoid_root_part.CanCollide = false
+            end
+        end
+    end
+end
+
+local function respawnCheck()
+    while true do
+        for _, otherPlayer in pairs(players:GetPlayers()) do
+            if otherPlayer ~= player then
+                otherPlayer.CharacterAdded:Wait()
+                enableHitboxExpander()
+                resizeHitboxes(Vector3.new(hitvalue, hitvalue, hitvalue))
+                extend_hitboxes()
+            end
+        end
+    end
+end
+
+local function resizeHitboxes(newSize)
+    targetSize = newSize
+    extend_hitboxes()
+end
+
+local resizeConnection
+local resizing = false
+
+local function startResizing(newSize)
+    if resizing then
+        return
+    end
+
+    resizing = true
+    targetSize = newSize
+
+    extend_hitboxes()
+
+    if resizeConnection then
+        resizeConnection:Disconnect()
+    end
+
+    resizeConnection = run_service.Heartbeat:Connect(function()
+        targetSize = newSize
+
+        extend_hitboxes()
+
+        if targetSize == newSize then
+            resizeConnection:Disconnect()
+            resizing = false
+        end
+    end)
+end
+
+local function stopResizing()
+    resizing = false
+
+    if resizeConnection then
+        resizeConnection:Disconnect()
+    end
+end
+
+local LocalPlayer = Players.LocalPlayer
+
+local ESPEnabled = false
+local ESPFolder = nil
+
+function createESP(player)
+    ESPFolder = Instance.new("Folder")
+    ESPFolder.Name = player.Name .. "_ESP"
+    ESPFolder.Parent = game.Workspace
+
+    local ESPBox = Instance.new("BoxHandleAdornment")
+    ESPBox.Name = player.Name .. "_Box"
+    ESPBox.Adornee = player.Character.HumanoidRootPart
+    ESPBox.Size = Vector3.new(5, 12, 5) -- Adjust the size to make it skinnier
+    ESPBox.AlwaysOnTop = true
+    ESPBox.ZIndex = 5
+    ESPBox.Color3 = Color3.new(1, 0, 0) -- Red color for the boxes
+    ESPBox.Transparency = 0.7
+    ESPBox.Parent = ESPFolder
+
+    player.CharacterAdded:Connect(function(character)
+        character.ChildAdded:Connect(function(child)
+            if child.Name == "HumanoidRootPart" then
+                ESPBox.Adornee = child
+            end
+        end)
+    end)
+
+    player.CharacterRemoving:Connect(function()
+        ESPFolder:Destroy()
+        ESPFolder = nil
+    end)
+end
+
+function enableESP()
+    if not ESPEnabled then
+        ESPEnabled = true
+        updateESP()
+    end
+end
+
+function disableESP()
+    if ESPEnabled then
+        ESPEnabled = false
+        if ESPFolder then
+            ESPFolder:Destroy()
+            ESPFolder = nil
+        end
+    end
+end
+
+function updateESP()
+    if ESPEnabled then
+        if not ESPFolder then
+            for _, player in ipairs(Players:GetPlayers()) do
+                local character = player.Character
+                if character and character:FindFirstChild("HumanoidRootPart") then
+                    -- Check if the player has a team, or if it's a free-for-all (no teams)
+                    local playerHasTeam = player.Team
+                    local localPlayerHasTeam = LocalPlayer.Team
+
+                    if player ~= LocalPlayer and (not playerHasTeam or not localPlayerHasTeam or player.TeamColor ~= LocalPlayer.TeamColor) then
+                        createESP(player)
+                    end
+                end
+            end
+        end
+    end
+end
+
+game:GetService("RunService").Stepped:Connect(updateESP)
+
+
+local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
+
+local Window = OrionLib:MakeWindow({Name = "AimRage by Eno", HidePremium = true, SaveConfig = false, ConfigFolder = "OrionTest"})
+OrionLib:MakeNotification({
+    Name = "AimRage Loaded!",
+    Content = "Made by Discord enoEure",
+    Image = "",
+    Time = 5
+})
+local ConfigureTab = Window:MakeTab({
+    Name = "Configuration",
+    Icon = "",
+    PremiumOnly = false
+})
+ConfigureTab:AddButton({
+    Name = "Enable ESP",
+    Callback = function()
+        enableESP()
+    end    
+})
+ConfigureTab:AddSlider({
+    Name = "HitBox Expansion",
+    Min = 4,
+    Max = 250,
+    Default = 5,
+    Color = Color3.fromRGB(255,255,255),
+    Increment = 1,
+    ValueName = "Multiplier",
+    Callback = function(Value)
+        enableHitboxExpander()
+        hitvalue = Value
+        resizeHitboxes(Vector3.new(Value, Value, Value))
+    end    
+})
+local CharacterTab = Window:MakeTab({
+    Name = "Character",
+    Icon = "",
+    PremiumOnly = false
+})
+CharacterTab:AddSlider({
+    Name = "Walk Speed",
+    Min = 4,
+    Max = 250,
+    Default = 5,
+    Color = Color3.fromRGB(255,255,255),
+    Increment = 1,
+    ValueName = "Multiplier",
+    Callback = function(Value)
+        game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = Value
+    end    
+})
+CharacterTab:AddSlider({
+    Name = "Jump Height",
+    Min = 4,
+    Max = 250,
+    Default = 5,
+    Color = Color3.fromRGB(255,255,255),
+    Increment = 1,
+    ValueName = "Multiplier",
+    Callback = function(Value)
+        game.Players.LocalPlayer.Character.Humanoid.JumpPower = Value
+    end    
+})
+local CreditsTab = Window:MakeTab({
+    Name = "Credits",
+    Icon = "",
+    PremiumOnly = false
+})
+CreditsTab:AddLabel("Made by enoEure Discord: enoEure.")
+
+
+while true do
+    enableHitboxExpander()
+    resizeHitboxes(Vector3.new(hitvalue, hitvalue, hitvalue))
+    wait()
+end
