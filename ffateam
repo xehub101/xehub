@@ -1,3 +1,40 @@
+local Players = game:GetService("Players")
+local players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local Camera = game.Workspace.CurrentCamera
+local local_player = players.LocalPlayer
+local run_service = game:GetService("RunService")
+local starter_gui = game:GetService("StarterGui")
+local player = Players.LocalPlayer
+local mouse = player:GetMouse()
+local hitvalue = 8
+local targetSize = Vector3.new(8, 8, 8) 
+local isLockingOn = false
+local targetPlayer = nil
+
+local Holder = Instance.new("Folder", game.CoreGui)
+Holder.Name = "ESP"
+
+local function toggleLockOn()
+    isLockingOn = not isLockingOn
+    if not isLockingOn then
+        targetPlayer = nil
+    end
+end
+
+local function handleInput(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton2 then
+        toggleLockOn()
+    end
+
+    -- Detect tap on mobile
+    if input.UserInputType == Enum.UserInputType.Touch and input.UserInputState == Enum.UserInputState.Begin then
+        toggleLockOn()
+    end
+end
+
+UserInputService.InputBegan:Connect(handleInput)
+
 game:GetService("RunService").Stepped:Connect(function(_, dt)
     if isLockingOn then
         local playerPosition = Camera.CFrame.Position
@@ -82,3 +119,4 @@ game:GetService("RunService").Stepped:Connect(function(_, dt)
         end
     end
 end)
+
