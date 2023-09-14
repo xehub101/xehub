@@ -1,0 +1,336 @@
+getgenv().AutoClick = false
+getgenv().AutoRebirth = false
+getgenv().AutoEgg = false
+getgenv().AutoUpgrade = false
+getgenv().autofarm = false
+getgenv().autofarmboss = false
+getgenv().autobuysuperupgrades = false
+local rebirthamount = 0
+local playerHead = game.Players.LocalPlayer.Character.Head
+local egg = "basic"
+
+function AutoClicker()
+	while AutoClick == true do
+		local args = {[1] = 1}
+		game:GetService("ReplicatedStorage").Aero.AeroRemoteServices.ClickService.Click:FireServer(unpack(args))
+		wait()
+	end
+end
+
+
+function AutoRebirther()
+	while AutoRebirth == true do
+		local args ={[1] = rebirthamount}
+		game:GetService("ReplicatedStorage").Aero.AeroRemoteServices.RebirthService.BuyRebirths:FireServer(unpack(args))
+		wait(5)
+	end
+end
+
+function AutoBuyEgg()
+	while AutoEgg == true do
+		local args = {[1]="basic"}
+		game:GetService("ReplicatedStorage").Aero.AeroRemoteServices.EggService.Purchase:FireServer(unpack(args))
+		wait()
+	end
+end
+
+function AutoOpenChests()
+	local chestTable = {"group1", "daily1", "vip1"}
+	for _, value in ipairs(chestTable) do
+		local args = {[1] = value}
+		game:GetService("ReplicatedStorage").Aero.AeroRemoteServices.ChestService.OpenChest:FireServer(unpack(args))
+		
+	end
+end
+	
+function AutoBuyUpgrades()
+	local upgrades = {"ClickMultiply","CursorDamage", "Health", "JumpPower", "PetStorage", "WalkSpeed"}
+	while AutoUpgrade == true do
+		for _, value in ipairs(upgrades) do
+			local args = {[1]= value}
+			game:GetService("ReplicatedStorage").Aero.AeroRemoteServices.UpgradeService.BuyUpgrade:FireServer(unpack(args))
+		end
+		wait(10)
+	end
+end
+	
+function AutoFarm()
+	while autofarm == true do
+		for i, v in pairs(game:GetService("Workspace").ScriptObjects:GetDescendants()) do
+			if v.Name == "TouchInterest" and v.Parent and v.Parent.Name ~= "Trigger" then
+			firetouchinterest(playerHead, v.Parent, 0)
+			wait(0.1)
+			firetouchinterest(playerHead, v.Parent, 1)
+		end
+		wait()
+	  end
+    end
+end
+
+function AutoBoss()
+	game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(CFrame.new(Vector3.new(754.65, 9.11, -261.60)))
+	while autofarmboss == true do
+		local args = {[1] = "Zombie"}
+		game:GetService("ReplicatedStorage").Aero.AeroRemoteServices.CursorCannonService.FireBoss:FireServer(unpack(args))
+		wait()
+	end
+end
+
+function AutoBuySuperUpgrades()
+	local upgrades = {"BossHit", "DoubleDamage", "DoubleHealth", "PetSlots", "PetStorage"}
+	while autobuysuperupgrades == true do
+		for _, value in ipairs(upgrades) do
+			local args = {[1]= value}
+			game:GetService("ReplicatedStorage").Aero.AeroRemoteServices.SuperUpgradeService.BuyUpgrade:FireServer(unpack(args))
+		end
+		wait(10)
+	end
+end
+		
+		
+
+
+--AutoBuySuperUpgrades()
+--AutoBoss()
+--AutoFarm()
+--AutoBuyUpgrades()
+--AutoOpenChests()
+--AutoBuyEgg()
+--AutoRebirther()
+--AutoClicker()
+
+
+local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/LuffyExploits/LuffyExploits/main/Orion%20Library')))()
+
+local Window = OrionLib:MakeWindow({Name = "Clicker Madness by Eno", HidePremium = true, SaveConfig = false, ConfigFolder = "OrionTest"})
+
+local FarmTab = Window:MakeTab({
+	Name = "Farming",
+	Icon = "",
+	PremiumOnly = false
+})
+
+local Section = FarmTab:AddSection({
+	Name = "Auto Collect"
+})
+FarmTab:AddToggle({
+	Name = "Auto Click",
+	Default = false,
+	Callback = function(Value)
+		AutoClick = Value
+		AutoClicker()
+	end    
+})
+FarmTab:AddToggle({
+	Name = "Auto Collecter",
+	Default = false,
+	Callback = function(Value)
+		autofarm = Value
+		AutoFarm()
+	end    
+})
+FarmTab:AddButton({
+	Name = "Collect Chests",
+	Callback = function()
+      		AutoOpenChests()
+  	end    
+})
+local Section = FarmTab:AddSection({
+	Name = "Auto Rebirthing"
+})
+FarmTab:AddTextbox({
+	Name = "Rebirth Amount",
+	Default = "Amount Ex: 1000",
+	TextDisappear = true,
+	Callback = function(Value)
+		rebirthamount = Value
+	end	  
+})
+FarmTab:AddToggle({
+	Name = "Auto Rebirth",
+	Default = false,
+	Callback = function(Value)
+		AutoRebirth = Value
+		AutoRebirther()
+	end    
+})
+local Section = FarmTab:AddSection({
+	Name = "Bosses"
+})
+FarmTab:AddToggle({
+	Name = "Auto Farm Boss",
+	Default = false,
+	Callback = function(Value)
+		autofarmboss = Value
+		AutoBoss()
+	end    
+})
+local BuyTab = Window:MakeTab({
+	Name = "Auto Buy",
+	Icon = "",
+	PremiumOnly = false
+})
+
+local Section = BuyTab:AddSection({
+	Name = "Auto Buy Upgrades"
+})
+
+BuyTab:AddToggle({
+	Name = "Auto Upgrades",
+	Default = false,
+	Callback = function(Value)
+		AutoUpgrade = Value
+		AutoBuyUpgrades()
+	end    
+})
+BuyTab:AddToggle({
+	Name = "Auto Super Upgrades",
+	Default = false,
+	Callback = function(Value)
+		autobuysuperupgrades = Value
+		AutoBuySuperUpgrades()
+	end    
+})
+
+local Section = BuyTab:AddSection({
+	Name = "Auto Buy Eggs"
+})
+
+BuyTab:AddDropdown({
+	Name = "Egg",
+	Default = "basic",
+	Options = {"basic", "lava", "desert", "ocean", "winter", "toxic", "candy", "forest", "storm", "blocks", "space", "dominus", "infinity", "future", "city", "moon", "fire"},
+	Callback = function(Value)
+		egg = Value
+	end    
+})
+BuyTab:AddToggle({
+	Name = "Auto Buy Egg",
+	Default = false,
+	Callback = function(Value)
+		AutoEgg = Value
+		AutoBuyEgg()
+	end    
+})
+local TeleportTab = Window:MakeTab({
+	Name = "Teleport",
+	Icon = "",
+	PremiumOnly = false
+})
+TeleportTab:AddButton({
+	Name = "Spawn",
+	Callback = function()
+      		game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(CFrame.new(Vector3.new(554.94, 8.84, -405.61)))
+  	end    
+})
+TeleportTab:AddButton({
+	Name = "Lava",
+	Callback = function()
+      		game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(CFrame.new(Vector3.new(-1690.38, 7.77, -734.64)))
+  	end    
+})
+TeleportTab:AddButton({
+	Name = "Desert",
+	Callback = function()
+      		game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(CFrame.new(Vector3.new(2288.66, 7.36, 1087.66)))
+  	end    
+})
+TeleportTab:AddButton({
+	Name = "Ocean",
+	Callback = function()
+      		game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(CFrame.new(Vector3.new(-258.01, 9.72, 2065.25)))
+  	end    
+})
+TeleportTab:AddButton({
+	Name = "Winter",
+	Callback = function()
+      		game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(CFrame.new(Vector3.new(-2195.28, 6.46, 409.99)))
+  	end    
+})
+TeleportTab:AddButton({
+	Name = "Toxic",
+	Callback = function()
+      		game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(CFrame.new(Vector3.new(-1677.47, 8.72, -2042.55)))
+  	end    
+})
+TeleportTab:AddButton({
+	Name = "Candy",
+	Callback = function()
+      		game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(CFrame.new(Vector3.new(1418.74, 9.27, -2243.14)))
+  	end    
+})
+TeleportTab:AddButton({
+	Name = "Forest",
+	Callback = function()
+      		game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(CFrame.new(Vector3.new(1838.47, 8.35, 3260.10)))
+  	end    
+})
+TeleportTab:AddButton({
+	Name = "Storm",
+	Callback = function()
+      		game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(CFrame.new(Vector3.new(-283.45, 8.89, -2593.82)))
+  	end    
+})
+TeleportTab:AddButton({
+	Name = "Blocks",
+	Callback = function()
+      		game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(CFrame.new(Vector3.new(2997.47, 11.17, -782.60)))
+  	end    
+})
+TeleportTab:AddButton({
+	Name = "Space",
+	Callback = function()
+      		game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(CFrame.new(Vector3.new(-2394.43, 7.40, 2861.37)))
+  	end    
+})
+TeleportTab:AddButton({
+	Name = "Future",
+	Callback = function()
+      		game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(CFrame.new(Vector3.new(1142.82, 9.54, 519.40)))
+  	end    
+})
+TeleportTab:AddButton({
+	Name = "Dominus",
+	Callback = function()
+      		game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(CFrame.new(Vector3.new(1114.78, 8.35, 2254)))
+  	end    
+})
+TeleportTab:AddButton({
+	Name = "Infinity",
+	Callback = function()
+      		game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(CFrame.new(Vector3.new(2160.42, 8.20, -1764.58)))
+  	end    
+})
+TeleportTab:AddButton({
+	Name = "City",
+	Callback = function()
+      		game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(CFrame.new(Vector3.new(-888.61, 7.70, 1026.44)))
+  	end    
+})
+TeleportTab:AddButton({
+	Name = "Moon",
+	Callback = function()
+      		game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(CFrame.new(Vector3.new(-2394.43, 7.40, 1899.26)))
+  	end    
+})
+TeleportTab:AddButton({
+	Name = "Fire",
+	Callback = function()
+      		game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(CFrame.new(Vector3.new(-2192.76, 7.77, -734.64)))
+  	end    
+})
+TeleportTab:AddButton({
+	Name = "VIP",
+	Callback = function()
+      		game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(CFrame.new(Vector3.new(518.59, 15.50, -1342.40)))
+  	end    
+})
+
+local CreditsTab = Window:MakeTab({
+	Name = "Credits",
+	Icon = "",
+	PremiumOnly = false
+})
+
+CreditsTab:AddLabel("Made by enoEure. Discord: enoEure.")
+
