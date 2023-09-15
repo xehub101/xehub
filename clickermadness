@@ -55,21 +55,31 @@ function AutoBuyUpgrades()
 end
 	
 function AutoFarm()
-	while autofarm == true do
-		for i, v in pairs(game:GetService("Workspace").ScriptObjects:GetDescendants()) do
-			if v.Name == "TouchInterest" and v.Parent and v.Parent.Name ~= "Trigger" then
-			firetouchinterest(playerHead, v.Parent, 0)
-			wait(0.1)
-			firetouchinterest(playerHead, v.Parent, 1)
-		end
-		wait()
-	  end
+      while autofarm == true do
+        for i, v in pairs(game:GetService("Workspace").ScriptObjects:GetDescendants()) do
+            local success, error_message = pcall(function()
+                if v.Name == "TouchInterest" and v.Parent and v.Parent.Name ~= "Trigger" then
+                    if playerHead and v.Parent and playerHead:IsA("BasePart") and v.Parent:IsA("BasePart") then
+                        firetouchinterest(playerHead, v.Parent, 0)
+                        wait(0.1)
+                        firetouchinterest(playerHead, v.Parent, 1)
+                    end
+                end
+            end)
+            
+            if not success then
+                warn("Error in SafeAutoFarm:", error_message)
+            end
+            wait()
+        end
     end
 end
 
 function AutoBoss()
-	game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(CFrame.new(Vector3.new(754.65, 9.11, -261.60)))
+	
 	while autofarmboss == true do
+	local zombiepart = workspace.ScriptObjects.Zombie.HumanoidRootPart.CFrame
+	game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(CFrame.new(Vector3.new(zombiepart.x, zombiepart.y, zombiepart.z)))
 		local args = {[1] = "Zombie"}
 		game:GetService("ReplicatedStorage").Aero.AeroRemoteServices.CursorCannonService.FireBoss:FireServer(unpack(args))
 		wait()
