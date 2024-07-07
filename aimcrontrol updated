@@ -11,7 +11,7 @@ Holder.Name = "ESP"
 
 -- Adjusted angle and distance thresholds
 local lockAngleThreshold = math.rad(20) -- Decreased angle threshold for stricter lock
-local maxLockDistance = 600 -- Maximum distance for locking onto players (adjust as needed)
+local maxLockDistance = 10000 -- Maximum distance for locking onto players (adjust as needed)
 
 local function toggleLockOn()
     isLockingOn = not isLockingOn
