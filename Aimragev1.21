@@ -15,9 +15,9 @@ local Teams = game:GetService("Teams")
 local teams = game:GetService("Teams"):GetTeams()
 
 if not teams or #teams == 1 then
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/xehub101/xehub/main/ffateam"))()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/xehub101/xehub/main/ffaupdated"))()
 else
-  loadstring(game:HttpGet("https://raw.githubusercontent.com/xehub101/xehub/main/aimcontrol"))()
+  loadstring(game:HttpGet("https://raw.githubusercontent.com/xehub101/xehub/main/aimcrontrol%20updated"))()
 end
 
 local LoadCharacter = function(v)
