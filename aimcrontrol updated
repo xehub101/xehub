@@ -9,9 +9,8 @@ local targetPlayer = nil
 local Holder = Instance.new("Folder", game.CoreGui)
 Holder.Name = "ESP"
 
--- Adjusted angle and distance thresholds
+-- Adjusted angle threshold
 local lockAngleThreshold = math.rad(20) -- Decreased angle threshold for stricter lock
-local maxLockDistance = 10000 -- Maximum distance for locking onto players (adjust as needed)
 
 local function toggleLockOn()
     isLockingOn = not isLockingOn
@@ -39,7 +38,7 @@ game:GetService("RunService").Stepped:Connect(function(_, dt)
         local playerTeam = localPlayer.Team
         local cameraLook = Camera.CFrame.LookVector
 
-        local closestPlayer, closestAngle, closestDistance = nil, math.huge, math.huge
+        local closestPlayer, closestAngle = nil, math.huge
 
         for _, otherPlayer in ipairs(Players:GetPlayers()) do
             if otherPlayer ~= localPlayer and (not otherPlayer.Team or otherPlayer.Team ~= playerTeam) then
@@ -53,12 +52,8 @@ game:GetService("RunService").Stepped:Connect(function(_, dt)
                         local angle = math.acos(cameraLook:Dot(toHead))
 
                         if angle < lockAngleThreshold then
-                            local distance = (headPosition - playerPosition).magnitude
-                            if distance < closestDistance and distance < maxLockDistance then
-                                closestPlayer = otherPlayer
-                                closestAngle = angle
-                                closestDistance = distance
-                            end
+                            closestPlayer = otherPlayer
+                            closestAngle = angle
                         end
                     end
                 end
