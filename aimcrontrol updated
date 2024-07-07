@@ -10,7 +10,7 @@ local Holder = Instance.new("Folder", game.CoreGui)
 Holder.Name = "ESP"
 
 -- Adjusted angle threshold
-local lockAngleThreshold = math.rad(20) -- Decreased angle threshold for stricter lock
+local lockAngleThreshold = math.rad(13) -- Decreased angle threshold for stricter lock
 
 local function toggleLockOn()
     isLockingOn = not isLockingOn
