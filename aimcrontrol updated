@@ -1,0 +1,124 @@
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local Camera = game.Workspace.CurrentCamera
+local localPlayer = Players.LocalPlayer
+
+local isLockingOn = false
+local targetPlayer = nil
+
+local Holder = Instance.new("Folder", game.CoreGui)
+Holder.Name = "ESP"
+
+-- Adjusted angle and distance thresholds
+local lockAngleThreshold = math.rad(20) -- Decreased angle threshold for stricter lock
+local maxLockDistance = 100 -- Maximum distance for locking onto players (adjust as needed)
+
+local function toggleLockOn()
+    isLockingOn = not isLockingOn
+    if not isLockingOn then
+        targetPlayer = nil
+    end
+end
+
+local function handleInput(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton2 then
+        toggleLockOn()
+    end
+
+    -- Detect tap on mobile
+    if input.UserInputType == Enum.UserInputType.Touch and input.UserInputState == Enum.UserInputState.Begin then
+        toggleLockOn()
+    end
+end
+
+UserInputService.InputBegan:Connect(handleInput)
+
+game:GetService("RunService").Stepped:Connect(function(_, dt)
+    if isLockingOn then
+        local playerPosition = Camera.CFrame.Position
+        local playerTeam = localPlayer.Team
+        local cameraLook = Camera.CFrame.LookVector
+
+        local closestPlayer, closestAngle, closestDistance = nil, math.huge, math.huge
+
+        for _, otherPlayer in ipairs(Players:GetPlayers()) do
+            if otherPlayer ~= localPlayer and (not otherPlayer.Team or otherPlayer.Team ~= playerTeam) then
+                local character = otherPlayer.Character
+                if character then
+                    local head = character:FindFirstChild("Head")
+                    if head then
+                        local headPosition = head.Position
+                        local toHead = (headPosition - playerPosition).unit
+
+                        local angle = math.acos(cameraLook:Dot(toHead))
+
+                        if angle < lockAngleThreshold then
+                            local distance = (headPosition - playerPosition).magnitude
+                            if distance < closestDistance and distance < maxLockDistance then
+                                closestPlayer = otherPlayer
+                                closestAngle = angle
+                                closestDistance = distance
+                            end
+                        end
+                    end
+                end
+            end
+        end
+
+        if closestPlayer then
+            targetPlayer = closestPlayer
+        else
+            targetPlayer = nil
+        end
+    end
+
+    if isLockingOn and targetPlayer then
+        local targetCharacter = targetPlayer.Character
+        if targetCharacter then
+            local head = targetCharacter:FindFirstChild("Head")
+            if head then
+                Camera.CFrame = CFrame.new(Camera.CFrame.Position, head.Position)
+            end
+        end
+    end
+
+    for _, v in pairs(Holder:GetChildren()) do
+        if v:IsA("Folder") and v.Name ~= localPlayer.Name then -- Skip LocalPlayer
+            local playerName = v.Name
+            local vPlayer = Players:FindFirstChild(playerName)
+
+            if vPlayer and (not vPlayer.Team or vPlayer.Team ~= localPlayer.Team) then
+                local character = vPlayer.Character
+                if character then
+                    local head = character:FindFirstChild("Head")
+                    if head then
+                        local screenPos = Camera:WorldToViewportPoint(head.Position)
+                        if screenPos.Z > 0 then
+                            local distance = (head.Position - localPlayer.Position).magnitude
+                            local scale = 1 / distance
+                            v.Adornee = head
+                            v.Size = Vector3.new(4 * scale, 7 * scale, 4 * scale)
+                            v.CFrame = CFrame.new(head.Position)
+                            v.Visible = true
+
+                            local nameTag = v:FindFirstChild(playerName .. "NameTag")
+                            if nameTag then
+                                nameTag.Enabled = true
+                                nameTag.StudsOffset = Vector3.new(0, 1.8 * scale, 0)
+                                nameTag.Size = UDim2.new(0, 200 * scale, 0, 50 * scale)
+                                nameTag.Adornee = head
+
+                                local tag = nameTag.Tag
+                                tag.Position = UDim2.new(0, -50 * scale, 0, 0)
+                                tag.Size = UDim2.new(0, 300 * scale, 0, 20 * scale)
+                                tag.TextSize = 20 * scale
+                            end
+                        else
+                            v.Visible = false
+                        end
+                    end
+                end
+            end
+        end
+    end
+end)
