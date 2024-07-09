@@ -1,0 +1,175 @@
+local Library = {}
+
+function Library:MakeWindow(settings)
+    local window = {}
+    window.frame = Instance.new("Frame")
+    window.frame.Size = UDim2.new(0, 400, 0, 300)
+    window.frame.Position = UDim2.new(0.5, -200, 0.5, -150)
+    window.frame.BackgroundColor3 = Color3.fromRGB(25, 25, 112)
+    window.frame.BackgroundTransparency = 0.4
+    window.frame.BorderSizePixel = 0
+    window.frame.AnchorPoint = Vector2.new(0.5, 0.5)
+
+    local gradient = Instance.new("UIGradient")
+    gradient.Color = ColorSequence.new{
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(123, 104, 238)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(25, 25, 112))
+    }
+    gradient.Parent = window.frame
+
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 10)
+    corner.Parent = window.frame
+
+    local titleLabel = Instance.new("TextLabel")
+    titleLabel.Size = UDim2.new(1, 0, 0, 30)
+    titleLabel.BackgroundTransparency = 1
+    titleLabel.Text = settings.Name or "Window"
+    titleLabel.Font = Enum.Font.SourceSansBold
+    titleLabel.TextSize = 20
+    titleLabel.TextColor3 = Color3.fromRGB(245, 245, 245)
+    titleLabel.Parent = window.frame
+
+    window.frame.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+
+    function window:MakeTab(tabSettings)
+        local tab = {}
+        tab.button = Instance.new("TextButton")
+        tab.button.Size = UDim2.new(0, 180, 0, 40)
+        tab.button.Position = UDim2.new(0, 10, 0, (#window.frame:GetChildren() - 1) * 50)
+        tab.button.BackgroundColor3 = Color3.fromRGB(72, 61, 139)
+        tab.button.BackgroundTransparency = 0.4
+        tab.button.BorderSizePixel = 0
+        tab.button.Text = tabSettings.Name or "Tab"
+        tab.button.TextColor3 = Color3.fromRGB(245, 245, 245)
+        tab.button.Font = Enum.Font.SourceSans
+        tab.button.TextSize = 20
+        tab.button.Parent = window.frame
+
+        local corner = Instance.new("UICorner")
+        corner.CornerRadius = UDim.new(0, 10)
+        corner.Parent = tab.button
+
+        tab.container = Instance.new("Frame")
+        tab.container.Size = UDim2.new(1, -200, 1, -40)
+        tab.container.Position = UDim2.new(0, 200, 0, 40)
+        tab.container.BackgroundTransparency = 1
+        tab.container.Visible = false
+        tab.container.Parent = window.frame
+
+        function tab:Show()
+            for _, sibling in ipairs(window.frame:GetChildren()) do
+                if sibling:IsA("Frame") and sibling ~= tab.container then
+                    sibling.Visible = false
+                end
+            end
+            tab.container.Visible = true
+        end
+
+        tab.button.MouseButton1Click:Connect(function()
+            tab:Show()
+        end)
+
+        function tab:AddSection(sectionSettings)
+            local section = {}
+            section.frame = Instance.new("Frame")
+            section.frame.Size = UDim2.new(1, -20, 0, 100)
+            section.frame.Position = UDim2.new(0, 10, 0, (#tab.container:GetChildren() * 110))
+            section.frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+            section.frame.BackgroundTransparency = 0.4
+            section.frame.BorderSizePixel = 0
+            section.frame.Parent = tab.container
+
+            local corner = Instance.new("UICorner")
+            corner.CornerRadius = UDim.new(0, 10)
+            corner.Parent = section.frame
+
+            local titleLabel = Instance.new("TextLabel")
+            titleLabel.Size = UDim2.new(1, 0, 0, 30)
+            titleLabel.BackgroundTransparency = 1
+            titleLabel.Text = sectionSettings.Name or "Section"
+            titleLabel.Font = Enum.Font.SourceSansBold
+            titleLabel.TextSize = 20
+            titleLabel.TextColor3 = Color3.fromRGB(245, 245, 245)
+            titleLabel.Parent = section.frame
+
+            function section:AddButton(buttonSettings)
+                local button = Instance.new("TextButton")
+                button.Size = UDim2.new(0, 160, 0, 40)
+                button.Position = UDim2.new(0, 10, 0, (#section.frame:GetChildren() - 1) * 50)
+                button.BackgroundColor3 = Color3.fromRGB(72, 61, 139)
+                button.BackgroundTransparency = 0.4
+                button.BorderSizePixel = 0
+                button.Text = buttonSettings.Name or "Button"
+                button.TextColor3 = Color3.fromRGB(245, 245, 245)
+                button.Font = Enum.Font.SourceSans
+                button.TextSize = 20
+                button.Parent = section.frame
+
+                local corner = Instance.new("UICorner")
+                corner.CornerRadius = UDim.new(0, 10)
+                corner.Parent = button
+
+                button.MouseButton1Click:Connect(buttonSettings.Callback)
+
+                return button
+            end
+
+            return section
+        end
+
+        return tab
+    end
+
+    return window
+end
+
+function Library:MakeNotification(settings)
+    local notification = Instance.new("Frame")
+    notification.Size = UDim2.new(0, 200, 0, 100)
+    notification.Position = UDim2.new(1, -210, 1, -110)
+    notification.BackgroundColor3 = Color3.fromRGB(25, 25, 112)
+    notification.BackgroundTransparency = 0.4
+    notification.BorderSizePixel = 0
+    notification.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+
+    local gradient = Instance.new("UIGradient")
+    gradient.Color = ColorSequence.new{
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(123, 104, 238)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(25, 25, 112))
+    }
+    gradient.Parent = notification
+
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 10)
+    corner.Parent = notification
+
+    local titleLabel = Instance.new("TextLabel")
+    titleLabel.Size = UDim2.new(1, 0, 0, 30)
+    titleLabel.BackgroundTransparency = 1
+    titleLabel.Text = settings.Name or "Notification"
+    titleLabel.Font = Enum.Font.SourceSansBold
+    titleLabel.TextSize = 20
+    titleLabel.TextColor3 = Color3.fromRGB(245, 245, 245)
+    titleLabel.Parent = notification
+
+    local contentLabel = Instance.new("TextLabel")
+    contentLabel.Size = UDim2.new(1, -20, 1, -40)
+    contentLabel.Position = UDim2.new(0, 10, 0, 30)
+    contentLabel.BackgroundTransparency = 1
+    contentLabel.Text = settings.Content or "Content"
+    contentLabel.Font = Enum.Font.SourceSans
+    contentLabel.TextSize = 16
+    contentLabel.TextColor3 = Color3.fromRGB(245, 245, 245)
+    contentLabel.TextWrapped = true
+    contentLabel.TextYAlignment = Enum.TextYAlignment.Top
+    contentLabel.Parent = notification
+
+    delay(settings.Time or 5, function()
+        notification:Destroy()
+    end)
+
+    return notification
+end
+
+return Library
